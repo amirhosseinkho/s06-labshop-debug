@@ -37,4 +37,21 @@ class PricingTest {
         assertEquals(40_000, Pricing.shippingFor(999_990));
         assertEquals(0, Pricing.shippingFor(1_000_000));
     }
+
+    @Test
+    void bulkDiscountForOrder1047() {
+        Order order = new Order(1047, "parisa", "");
+
+        order.getItems().add(new Item("K07", 38_500, 6));
+        order.getItems().add(new Item("M21", 12_990, 1));
+        order.getItems().add(new Item("K07", 38_500, 6));
+
+        Bill bill = Pricing.priceOrder(order);
+
+        assertEquals(474_990, bill.subtotal());
+        assertEquals(46_200, bill.discount());
+        assertEquals(38_591, bill.tax());
+        assertEquals(40_000, bill.shipping());
+        assertEquals(507_381, bill.total());
+    }
 }
