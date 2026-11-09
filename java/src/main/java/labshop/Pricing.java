@@ -2,6 +2,8 @@ package labshop;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Locale;
 
 /** Pricing rules for LabShop orders. All amounts are in toman. */
 public final class Pricing {
@@ -20,7 +22,7 @@ public final class Pricing {
     }
 
     public static Coupon findCoupon(String code) {
-        return COUPONS.get(code);
+        return COUPONS.get(code.trim().toUpperCase(Locale.ROOT));
     }
 
     public static Bill priceOrder(Order order) {
@@ -38,12 +40,24 @@ public final class Pricing {
 
     // 10% off every line that has BULK_MIN_QTY units or more
     static long bulkDiscount(List<Item> items) {
-        long discount = 0;
+        Map<String, Long> quantities = new HashMap<>();
+        Map<String, Long> amounts = new HashMap<>();
+
         for (Item item : items) {
-            if (item.getQty() >= BULK_MIN_QTY) {
-                discount += item.getUnitPrice() * item.getQty() * BULK_PERCENT / 100;
+            String sku = item.getSku();
+
+            quantities.merge(sku, item.getQty(), Long::sum);
+            amounts.merge(sku, item.getUnitPrice() * item.getQty(), Long::sum);
+        }
+
+        long discount = 0;
+
+        for (String sku : quantities.keySet()) {
+            if (quantities.get(sku) >= BULK_MIN_QTY) {
+                discount += amounts.get(sku) * BULK_PERCENT / 100;
             }
         }
+
         return discount;
     }
 
@@ -52,6 +66,8 @@ public final class Pricing {
             return 0;
         }
         Coupon coupon = findCoupon(order.getCouponCode());
+        if (coupon == null)
+            return 0;
         if (coupon.kind().equals("fixed")) {
             return Math.min(coupon.value(), amount);
         }
@@ -71,7 +87,7 @@ public final class Pricing {
 
     // VAT, rounded to the nearest toman
     public static long taxFor(long amount) {
-        return amount * TAX_PERCENT / 100;
+        return (amount * TAX_PERCENT + 50) / 100;
     }
 
     public static long shippingFor(long amount) {
