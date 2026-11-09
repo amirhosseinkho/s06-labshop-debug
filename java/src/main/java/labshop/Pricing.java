@@ -2,6 +2,7 @@ package labshop;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 /** Pricing rules for LabShop orders. All amounts are in toman. */
 public final class Pricing {
@@ -20,7 +21,7 @@ public final class Pricing {
     }
 
     public static Coupon findCoupon(String code) {
-        return COUPONS.get(code);
+        return COUPONS.get(code.trim().toUpperCase(Locale.ROOT));
     }
 
     public static Bill priceOrder(Order order) {
@@ -52,6 +53,8 @@ public final class Pricing {
             return 0;
         }
         Coupon coupon = findCoupon(order.getCouponCode());
+        if (coupon == null)
+            return 0;
         if (coupon.kind().equals("fixed")) {
             return Math.min(coupon.value(), amount);
         }
