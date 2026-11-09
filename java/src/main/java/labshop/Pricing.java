@@ -87,7 +87,7 @@ public final class Pricing {
 
     // VAT, rounded to the nearest toman
     public static long taxFor(long amount) {
-        return amount * TAX_PERCENT / 100;
+        return (amount * TAX_PERCENT + 50) / 100;
     }
 
     public static long shippingFor(long amount) {
