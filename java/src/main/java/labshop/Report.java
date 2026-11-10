@@ -26,7 +26,7 @@ public class Report {
             System.out.printf(Locale.ROOT, "%5d  %-10s %10d %9d %9d %9d %11d%n",
                     order.getId(), order.getCustomer(), bill.subtotal(), bill.discount(),
                     bill.tax(), bill.shipping(), bill.total());
-            if (!order.getCouponCode().isEmpty() && Pricing.findCoupon(order.getCouponCode()) == null) {
+            if (!order.getCouponCode().trim().isEmpty() && Pricing.findCoupon(order.getCouponCode()) == null) {
                 invalid++;
             }
         }
